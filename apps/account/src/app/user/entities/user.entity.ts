@@ -28,6 +28,12 @@ class UserEntity implements IUser {
   public validatePassword(password: string) {
     return compare(password, this.passwordHash);
   }
+
+  public updateProfile(displayName: IUser['displayName']) {
+    this.displayName = displayName;
+
+    return this;
+  }
 }
 
 export default UserEntity;
