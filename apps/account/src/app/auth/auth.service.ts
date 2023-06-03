@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { UserRole } from '@nest-monorepo/interfaces';
 import { JwtService } from '@nestjs/jwt';
-import { RegisterDto } from './dto/register.dto';
 import UserRepository from '../user/repositories/user.repository';
 import UserEntity from '../user/entities/user.entity';
+import { AccountRegister } from '@nest-monorepo/contracts';
 
 @Injectable()
 export class AuthService {
@@ -12,7 +12,7 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) {}
 
-  async register({ email, password, displayName }: RegisterDto) {
+  async register({ email, password, displayName }: AccountRegister.Request) {
     const foundUser = await this.userRepository.findUser(email);
 
     if (foundUser) {
