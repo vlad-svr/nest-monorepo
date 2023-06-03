@@ -18,6 +18,14 @@ class UserEntity implements IUser {
     this.courses = user.courses;
   }
 
+  public getPublicProfile() {
+    return {
+      role: this.role,
+      email: this.email,
+      displayName: this.displayName,
+    };
+  }
+
   public async setPassword(password: string) {
     const salt = await genSalt(10);
     this.passwordHash = await hash(password, salt);
