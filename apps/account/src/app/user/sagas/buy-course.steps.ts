@@ -4,6 +4,7 @@ import {
   CourseGetCourse,
   PaymentCheck,
   PaymentGenerateLink,
+  PaymentStatuses,
 } from '@nest-monorepo/contracts';
 import { PurchaseState } from '@nest-monorepo/interfaces';
 
@@ -38,7 +39,7 @@ class BuyCourseSagaStateStarted extends BuyCourseSagaState {
     return { paymentLink, user: this.saga.user };
   }
 
-  public checkPayment(): Promise<{ user: UserEntity }> {
+  public checkPayment(): ReturnType<BuyCourseSagaState['checkPayment']> {
     throw new Error(
       'It is not possible to check a status of the payment that has not started yet'
     );
@@ -56,7 +57,7 @@ class BuyCourseSagaStateWaitingForPayments extends BuyCourseSagaState {
     throw new Error('The payment is in progress, you can not pay again');
   }
 
-  public async checkPayment(): Promise<{ user: UserEntity }> {
+  public async checkPayment(): ReturnType<BuyCourseSagaState['checkPayment']> {
     const { status } = await this.saga.rmqService.send<
       PaymentCheck.Request,
       PaymentCheck.Response
@@ -66,17 +67,17 @@ class BuyCourseSagaStateWaitingForPayments extends BuyCourseSagaState {
     });
 
     switch (status) {
-      case 'SUCCESS':
+      case PaymentStatuses.SUCCESS:
         this.saga.setState(PurchaseState.PURCHASED, this.saga.courseId);
         break;
-      case 'PROGRESS':
+      case PaymentStatuses.PROGRESS:
         break;
-      case 'CANCELED':
+      case PaymentStatuses.CANCELED:
         this.saga.setState(PurchaseState.CANCELED, this.saga.courseId);
         break;
     }
 
-    return { user: this.saga.user };
+    return { user: this.saga.user, status };
   }
 
   public cancel(): { user: UserEntity } {
@@ -89,7 +90,7 @@ class BuyCourseSagaStatePurchased extends BuyCourseSagaState {
     throw new Error('It is not possible to pay for the paid course');
   }
 
-  checkPayment(): Promise<{ user: UserEntity }> {
+  checkPayment(): ReturnType<BuyCourseSagaState['checkPayment']> {
     throw new Error(
       'It is not possible to check the payment in the paid course'
     );
@@ -107,7 +108,7 @@ class BuyCourseSagaStateCanceled extends BuyCourseSagaState {
     return this.saga.getState().pay();
   }
 
-  checkPayment(): Promise<{ user: UserEntity }> {
+  checkPayment(): ReturnType<BuyCourseSagaState['checkPayment']> {
     throw new Error(
       'It is not possible to check the payment in the canceled course'
     );
