@@ -1,10 +1,12 @@
 import {
+  IDomainEvent,
   IUser,
   IUserCourses,
   PurchaseState,
   UserRole,
 } from '@nest-monorepo/interfaces';
 import { compare, genSalt, hash } from 'bcryptjs';
+import { AccountChangedCourse } from '@nest-monorepo/contracts';
 
 class UserEntity implements IUser {
   _id?: string;
@@ -13,6 +15,7 @@ class UserEntity implements IUser {
   passwordHash: string;
   role: UserRole;
   courses: IUserCourses[];
+  events: IDomainEvent[] = [];
 
   constructor(user: IUser) {
     this._id = user._id;
@@ -42,6 +45,11 @@ class UserEntity implements IUser {
       }
 
       return c;
+    });
+
+    this.events.push({
+      topic: AccountChangedCourse.topic,
+      data: { courseId, userId: this._id, state },
     });
 
     return this;
