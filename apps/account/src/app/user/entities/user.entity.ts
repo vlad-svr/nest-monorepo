@@ -1,4 +1,9 @@
-import { IUser, IUserCourses, UserRole } from '@nest-monorepo/interfaces';
+import {
+  IUser,
+  IUserCourses,
+  PurchaseState,
+  UserRole,
+} from '@nest-monorepo/interfaces';
 import { compare, genSalt, hash } from 'bcryptjs';
 
 class UserEntity implements IUser {
@@ -16,6 +21,30 @@ class UserEntity implements IUser {
     this.email = user.email;
     this.role = user.role;
     this.courses = user.courses;
+  }
+
+  public addCourse(courseId: string) {
+    const exist = this.courses.find((c) => c._id === courseId);
+
+    if (exist) {
+      throw new Error('The course to be added already exists');
+    }
+
+    this.courses.push({ courseId, purchaseState: PurchaseState.STARTED });
+  }
+
+  public deleteCourse(courseId: string) {
+    this.courses = this.courses.filter((c) => c._id !== courseId);
+  }
+
+  public updateCourseStatus(courseId: string, state: PurchaseState) {
+    this.courses = this.courses.map((c) => {
+      if (c._id === courseId) {
+        c.purchaseState = state;
+      }
+
+      return c;
+    });
   }
 
   public getPublicProfile() {
