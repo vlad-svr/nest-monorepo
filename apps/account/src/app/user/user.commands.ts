@@ -1,6 +1,10 @@
 import { Body, Controller } from '@nestjs/common';
 import { RMQRoute, RMQValidate } from 'nestjs-rmq';
-import { AccountChangeProfile } from '@nest-monorepo/contracts';
+import {
+  AccountBuyCourse,
+  AccountChangeProfile,
+  AccountCheckPayment,
+} from '@nest-monorepo/contracts';
 import UserRepository from './repositories/user.repository';
 import UserEntity from './entities/user.entity';
 
@@ -23,5 +27,21 @@ export class UserCommands {
     await this.userRepository.updateUser(userEntity);
 
     return {};
+  }
+
+  @RMQValidate()
+  @RMQRoute(AccountBuyCourse.topic)
+  async buyCourse(
+    @Body() { userId, courseId }: AccountBuyCourse.Request
+  ): Promise<AccountBuyCourse.Response> {
+    throw new Error('The method is not implemented');
+  }
+
+  @RMQValidate()
+  @RMQRoute(AccountCheckPayment.topic)
+  async checkPayment(
+    @Body() { userId, courseId }: AccountCheckPayment.Request
+  ): Promise<AccountCheckPayment.Response> {
+    throw new Error('The method is not implemented');
   }
 }
