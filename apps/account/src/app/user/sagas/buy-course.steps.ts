@@ -21,7 +21,7 @@ class BuyCourseSagaStateStarted extends BuyCourseSagaState {
       throw new Error("This course doesn't exist");
     }
 
-    if (course.price === 0) {
+    if (course.price == 0) {
       this.saga.setState(PurchaseState.PURCHASED, course._id);
       return { paymentLink: null, user: this.saga.user };
     }

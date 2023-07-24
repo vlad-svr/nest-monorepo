@@ -40,7 +40,7 @@ class UserEntity implements IUser {
     }
 
     this.courses = this.courses.map((c) => {
-      if (c._id === courseId) {
+      if (c.courseId === courseId) {
         c.purchaseState = state;
       }
 
@@ -53,6 +53,13 @@ class UserEntity implements IUser {
     });
 
     return this;
+  }
+
+  public getCourseState(courseId: string): PurchaseState {
+    return (
+      this.courses.find((c) => c.courseId === courseId)?.purchaseState ??
+      PurchaseState.STARTED
+    );
   }
 
   public getPublicProfile() {

@@ -35,7 +35,6 @@ class UserService {
     }
 
     const userEntity = new UserEntity(existedUser);
-
     const saga = new BuyCourseSaga(userEntity, courseId, this.rmqService);
     const { user, paymentLink } = await saga.getState().pay();
     await this.updateUser(user);
