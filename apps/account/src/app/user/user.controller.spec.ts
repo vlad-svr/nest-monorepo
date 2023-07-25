@@ -1,10 +1,13 @@
 import {
   AccountBuyCourse,
+  AccountCheckPayment,
   AccountLogin,
   AccountRegister,
   AccountUserInfo,
   CourseGetCourse,
+  PaymentCheck,
   PaymentGenerateLink,
+  PaymentStatuses,
 } from '@nest-monorepo/contracts';
 import { INestApplication } from '@nestjs/common';
 import UserRepository from './repositories/user.repository';
@@ -101,6 +104,19 @@ describe('UserController', function () {
         AccountBuyCourse.Response
       >(AccountBuyCourse.topic, { userId, courseId })
     ).rejects.toThrowError();
+  });
+
+  it('CheckPayment', async () => {
+    rmqService.mockReply<PaymentCheck.Response>(PaymentCheck.topic, {
+      status: PaymentStatuses.SUCCESS,
+    });
+
+    const response = await rmqService.triggerRoute<
+      AccountCheckPayment.Request,
+      AccountCheckPayment.Response
+    >(AccountCheckPayment.topic, { userId, courseId });
+
+    expect(response.status).toEqual(PaymentStatuses.SUCCESS);
   });
 
   afterAll(async () => {
